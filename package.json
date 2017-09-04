@@ -1,0 +1,23 @@
+{
+  "name": "file-dependency-manager",
+  "version": "1.0.0",
+  "description": "Utility to manage relations between files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://atyn@github.com/Atyn/file-dependency-manager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Atyn/file-dependency-manager/issues"
+  },
+  "homepage": "https://github.com/Atyn/file-dependency-manager#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^7.2.3"
+  }
+}
