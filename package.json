@@ -19,5 +19,9 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-eslint": "^7.2.3"
+  },
+  "dependencies": {
+    "dependency-solver": "git://github.com/Atyn/dependency-solver.git",
+    "set-operations": "git://github.com/Atyn/set-operations.git"
   }
 }
