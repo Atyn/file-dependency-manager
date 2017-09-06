@@ -1,9 +1,10 @@
-import { setDifference } from '../utils'
+import { setDifference } from 'set-operations'
 
 /*
 Manage a tree base on dependencies
 */
 
+export default
 class DependencyManager {
 	constructor(
 		rootNode,

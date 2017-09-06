@@ -1,5 +1,5 @@
 import path from 'path'
-import { setDifference } from '../utils'
+import { setDifference } from 'set-operations'
 import DependencyManager from './DependencyManager'
 import MessageBus from './MessageBus'
 
@@ -57,7 +57,7 @@ function solveDependencies({
 						messageBus.subscribe(fromType, (content) => {
 							transform(content, name, rule)
 								.then(
-									newContent => messageBus.publish(toType, newContent)
+								newContent => messageBus.publish(toType, newContent)
 								)
 						})
 
