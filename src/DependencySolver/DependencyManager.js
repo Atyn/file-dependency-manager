@@ -30,11 +30,15 @@ class DependencyManager {
 	}
 	updateDependencies(name, list) {
 
-		console.log('updateDependencies', name)
 		const oldDepenencies = this.dependencies[name]
 
 		const addedDependencies = setDifference(oldDepenencies, list)
 		const removedDependencies = setDifference(list, oldDepenencies)
+
+		// No changes?
+		if (!addedDependencies.length && !removedDependencies.length) {
+			return
+		}
 
 		const oldListOfModules = Object.keys(this.dependingOn)
 
@@ -58,12 +62,6 @@ class DependencyManager {
 		this.checkTree(oldListOfModules)
 
 		/*
-		console.log(name, ':')
-		console.log('addedDependencies:', addedDependencies)
-		console.log('removedDependencies', removedDependencies)
-		*/
-
-		/*
 		const circularDependencies = this.checkCircularDependencies(name)
 		if (!circularDependencies.length) {
 			this.onError('Circular dependencies:', circularDependencies.join('->'))
@@ -80,9 +78,6 @@ class DependencyManager {
 		const addedNodes = setDifference(oldListOfModules, listOfModules)
 		const removedNodes = setDifference(listOfModules, oldListOfModules)
 
-		console.log('addedNodes', addedNodes)
-		console.log('removedNodes', removedNodes)
-
 		// Notify listeners
 		removedNodes.forEach(nodeName => {
 			delete this.dependencies[nodeName]
@@ -93,7 +88,12 @@ class DependencyManager {
 			this.nodeContext[nodeName] = this.onNodeAdded(nodeName)
 		})
 
-		this.onTreeUpdate(this.dependencies, this.dependingOn)
+		this.onTreeUpdate(
+			addedNodes,
+			removedNodes,
+			this.dependencies,
+			this.dependingOn
+		)
 
 	}
 	checkCircularDependencies(name, originalName) {

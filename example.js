@@ -16,12 +16,36 @@ const config = {
 	onError:         (error) => console.error(error),
 	watchResource:   (name, listener) => watchFile(name, listener),
 	unWatchResource: (name, listener) => unwatchFile(name, listener),
-	onTreeUpdate:    (dependencies, dependingOn) => {
-		writeFile('./tmp/dependencies.json', JSON.stringify(dependencies, null, '\t')).catch(console.error)
-		writeFile('./tmp/dependingOn.json', JSON.stringify(dependingOn, null, '\t')).catch(console.error)
-	},
+	onTreeUpdate:    onTreeUpdate,
+	subscribe:       [
+		{
+			test: /lib2\.js/,
+			type: 'ast',
+			callback(content) {
+				console.log('Update for lib2 ast!!!')
+			},
+		},
+	],
 	// Source and dependencies are watched by system
 	rules: [JSRule],
 }
 
 const unwatch = solveDependencies(config)
+
+function onTreeUpdate(
+	addedNodes,
+	removedNodes,
+	dependencies,
+	dependingOn
+) {
+	if (addedNodes.length) {
+		console.log('addedNodes:', addedNodes)
+	}
+	if (removedNodes.length) {
+		console.log('removedNodes:', removedNodes)
+	}
+	writeFile('./tmp/dependencies.json',
+		JSON.stringify(dependencies, null, '\t')).catch(console.error)
+	writeFile('./tmp/dependingOn.json',
+		JSON.stringify(dependingOn, null, '\t')).catch(console.error)
+}
