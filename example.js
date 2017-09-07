@@ -10,17 +10,18 @@ const writeFile = promisify(fs.writeFile)
 const { watchFile, unwatchFile } = fs
 
 const config = {
-	input:           process.cwd() + '/example/test.js',
-	getResource:     (name) => readFile(name),
+	input:           process.cwd() + '/example/main.js',
+	getResource:     (name) => readFile(name).catch(console.error),
 	writeResource:   writeFile,
 	onError:         (error) => console.error(error),
 	watchResource:   (name, listener) => watchFile(name, listener),
 	unWatchResource: (name, listener) => unwatchFile(name, listener),
-	onTreeUpdate:    (map) => {
-		writeFile('./tmp/report.json', JSON.stringify(map, null, 2))
+	onTreeUpdate:    (dependencies, dependingOn) => {
+		writeFile('./tmp/dependencies.json', JSON.stringify(dependencies, null, '\t')).catch(console.error)
+		writeFile('./tmp/dependingOn.json', JSON.stringify(dependingOn, null, '\t')).catch(console.error)
 	},
 	// Source and dependencies are watched by system
 	rules: [JSRule],
 }
 
-solveDependencies(config)
+const unwatch = solveDependencies(config)

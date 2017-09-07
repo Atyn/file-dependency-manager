@@ -1,5 +1,5 @@
 import path from 'path'
-import { setDifference } from 'set-operations'
+import { setDidatabasefference } from 'set-operations'
 import DependencyManager from './DependencyManager'
 import MessageBus from './MessageBus'
 
@@ -13,11 +13,11 @@ function solveDependencies({
 	rules,
 	onError,
 	unWatchResource,
-	onTreeUpdate = () => {},
+	onTreeUpdate,
 }) {
 
 	const dependencyManager = new DependencyManager({
-		input,
+		rootNode: input,
 		onNodeRemoved,
 		onNodeAdded,
 		onTreeUpdate,
@@ -28,6 +28,8 @@ function solveDependencies({
 	}
 
 	function onNodeAdded(name) {
+		console.log('onNodeAdded', name)
+
 		const rule = getRulesFromFilename(name)
 		const transformers = rule.transformers
 		const messageBus = new MessageBus()
@@ -74,6 +76,7 @@ function solveDependencies({
 
 	}
 
+	/*
 	const nodes = {}
 	const dependencyByModules = {}
 	const fileWatchers = {}
@@ -92,6 +95,7 @@ function solveDependencies({
 					})
 			})
 	})
+	*/
 
 	// Start everything
 	// addFile(input)
@@ -117,6 +121,7 @@ function solveDependencies({
 		}
 	}
 
+/*
 	function addFile(filename) {
 		if (nodes[filename]) {
 			console.log(filename, 'already added')
@@ -202,6 +207,7 @@ function solveDependencies({
 
 	}
 
+	*/
 	function getRulesFromFilename(fileName) {
 		return rules.find(
 			loader => loader.test.test(fileName)

@@ -1,3 +1,4 @@
+import './lib2'
 
 export
 const bla = 'feuihfiu'
