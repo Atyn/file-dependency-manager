@@ -1,7 +1,9 @@
-import './lib2'
+import { yoyo } from './lib2'
 
 export
-const bla = 'feuihfiu'
+function bla() {
+	yoyo()
+}
 
 export
 const yo = 'yo'

@@ -1,0 +1,12 @@
+{
+	"latestFolder": "copy",
+	"nodeEnv": "production",
+	"minify": true,
+	"inlineCSSCode": false,
+	"usePolyfills": true,
+	"sourceMaps": true,
+	"autoprefixCSS": true,
+	"uiPlatforms": [
+		 "irw", "prototype"
+	]
+}

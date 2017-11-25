@@ -1,71 +1,101 @@
-import path from 'path'
+import Path from 'path'
 import { setDidatabasefference } from 'set-operations'
 import DependencyManager from './DependencyManager'
 import MessageBus from './MessageBus'
 
 // Callback runs when changes for a node has occured
 export
-function solveDependencies({
+function solveDependencies(list) {
+	list.forEach(config => _solveDependencies({
+		input:            config.input,
+		getResource:      config.getResource,
+		writeResource:    config.writeResource,
+		watchResource:    config.watchResource,
+		fileInterpreters: config.fileInterpreters,
+		onError:          config.onError,
+		onUpdate:         config.onUpdate,
+		unWatchResource:  config.unWatchResource,
+		resolveFile:      config.resolveFile,
+		debug:            config.debug,
+		subscribe:        config.subscribe,
+	}))
+}
+
+// Callback runs when changes for a node has occured
+export
+function _solveDependencies({
 	input,
 	getResource,
 	writeResource,
 	watchResource,
-	rules,
+	fileInterpreters,
 	onError,
+	onUpdate,
 	unWatchResource,
-	onTreeUpdate,
+	resolveFile,
+	debug,
 	subscribe, // test, type, callback
 }) {
 
 	const dependencyManager = new DependencyManager({
-		rootNode: input,
+		rootNode:     input,
 		onNodeRemoved,
 		onNodeAdded,
-		onTreeUpdate,
+		onTreeUpdate: onTreeUpdate,
 	})
+
+	function onTreeUpdate(
+		addedNodes,
+		removedNodes,
+		dependencies,
+		dependingOn
+	) {
+
+	}
 
 	function onNodeRemoved(name, destroyFunction) {
 		destroyFunction()
 	}
 
 	function onNodeAdded(name) {
-
-		const rule = getRulesFromFilename(name)
-		const transformers = rule.transformers
+		const fileInterpreter = getRulesFromFilename(name)
 		const messageBus = new MessageBus()
 
-		if (!rule) {
-			onError('No rule for file', name)
+		if (!fileInterpreter) {
+			onError('No fileInterpreter for file', name)
 			return null
 		}
 
 		// subscribe to dependencies
-		messageBus.subscribe('dependencies', dependencies => {
-			dependencyManager.updateDependencies(name, dependencies)
+		messageBus.subscribe('dependencies', (dependencies) => {
+			// Resolve filepath when dependencies are given
+			const list = dependencies
+				.map(dependencyName => resolveFile(name, dependencyName))
+				.filter(Boolean)
+			dependencyManager.updateDependencies(name, list)
+			onUpdate({
+				name:         name,
+				type:         'dependencies',
+				dependencies: list,
+			})
 		})
 
-		// Create publish/subscribe relations
-		Object.keys(transformers)
-			.forEach(fromType => {
-				const obj = transformers[fromType]
-
-				Object.keys(obj)
-					.forEach(toType => {
-
-						// Take out transform function
-						const transform = obj[toType]
-
-						// When content changes -> transform to another content
-						messageBus.subscribe(fromType, (content) => {
-							transform(content, name, rule)
-								.then(
-								newContent => messageBus.publish(toType, newContent)
-								)
-						})
-
-					})
-
+		messageBus.subscribe('ast', (ast) => {
+			fileInterpreter.getDependencies(ast, name)
+				.then(content =>
+					messageBus.publish('dependencies', content)
+				)
+			onUpdate({
+				name: name,
+				type: 'ast',
+				ast:  ast,
 			})
+		})
+
+		messageBus.subscribe('source', (source) => {
+			fileInterpreter.getAst(source, name)
+				.then(content => messageBus.publish('ast', content))
+		})
 
 		// Subscribe to file changes
 		return resource(name, onSource)
@@ -90,8 +120,8 @@ function solveDependencies({
 	}
 
 	function getRulesFromFilename(fileName) {
-		return rules.find(
-			loader => loader.test.test(fileName)
+		return Object.values(fileInterpreters).find(
+			loader => loader.test(fileName)
 		)
 	}
 

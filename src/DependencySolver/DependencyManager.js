@@ -68,7 +68,7 @@ class DependencyManager {
 		}
 		*/
 
-		this.onTreeUpdate(this.dependencies, this.dependingOn)
+		// this.onTreeUpdate(this.dependencies, this.dependingOn)
 
 	}
 	checkTree(oldListOfModules) {

@@ -9,4 +9,24 @@ Utility to manage relations between files
 - Less
 - JSON
 - CSON
-- .anton
+
+## Concept
+
+### Resolve
+
+### Input
+Point to a file generating a file tree
+
+### Rules
+Declare how to interpret files (that give dependencies)
+
+### Output generator
+Listen to file tree changes and generate output
+
+## Notes
+every node has
+1. AST
+2. dependencies
+
+When dependecies change => change order of execution order
+When AST changes => compile
