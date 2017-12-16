@@ -30,3 +30,10 @@ every node has
 
 When dependecies change => change order of execution order
 When AST changes => compile
+
+## JSRule
+### Loader with babel
+* cjs -> es2015
+* React transform
+### Output browser-compatible modules
+### Use rollup asynchronous to generate bundle

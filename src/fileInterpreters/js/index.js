@@ -2,6 +2,17 @@ import path from 'path'
 import { parse } from 'babylon'
 import { transform } from 'babel-core'
 import Recast from 'recast'
+import { transform } from 'babel-core';
+
+const parserOptions = {
+	sourceType:                  'module',
+	allowImportExportEverywhere: false,
+	plugins:                     [
+		// enable jsx and flow syntax
+		'jsx',
+		'flow',
+	],
+}
 
 export default
 class JsInterpreter {
@@ -17,7 +28,8 @@ class JsInterpreter {
 	}
 
 	static async getAst(code) {
-		return Recast.parse(code.toString())
+		const ast = parse(code, parserOptions)
+		// return Recast.parse(code.toString())
 	}
 
 }

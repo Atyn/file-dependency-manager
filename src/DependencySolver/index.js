@@ -9,7 +9,6 @@ function solveDependencies(list) {
 	list.forEach(config => _solveDependencies({
 		input:            config.input,
 		getResource:      config.getResource,
-		writeResource:    config.writeResource,
 		watchResource:    config.watchResource,
 		fileInterpreters: config.fileInterpreters,
 		onError:          config.onError,
@@ -71,6 +70,7 @@ function _solveDependencies({
 			// Resolve filepath when dependencies are given
 			const list = dependencies
 				.map(dependencyName => resolveFile(name, dependencyName))
+				.map(obj => obj.path)
 				.filter(Boolean)
 			dependencyManager.updateDependencies(name, list)
 			onUpdate({

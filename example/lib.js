@@ -1,7 +1,8 @@
-import { yoyo } from './lib2'
+import { yoyo } from './lib2.js'
 
 export
 function bla() {
+	console.log('lib!')
 	yoyo()
 }
 

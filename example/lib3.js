@@ -1,4 +1,4 @@
-import './lib4'
+import './lib4.js'
 
 const bla = 'hello'
 

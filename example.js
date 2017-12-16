@@ -7,12 +7,11 @@ import fileInterpreters from './src/fileInterpreters'
 import Fs from 'fs'
 import { promisify } from 'util'
 import JsOutputBundler from './src/bundlers/js'
+import UglifyJS from 'uglify-js'
 
-/*
-const readFile = promisify(fs.readFile)
-const writeFile = promisify(fs.writeFile)
-const { watchFile, unwatchFile } = fs
-*/
+const readFile = promisify(Fs.readFile)
+const writeFile = promisify(Fs.writeFile)
+const { watchFile, unwatchFile } = Fs
 
 const superConfig = {
 	// getResource:   (name) => readFile(name).catch(console.error),
@@ -62,15 +61,16 @@ class Config extends DefaultConfig {
 
 const bundler = new JsOutputBundler()
 
-/*
-setInterval(() => {
-	Fs.writeFileSync('./tmp/output.js', bundler.generateOutput())
-}, 500)
-*/
 const generateFile = debounce(() => {
 	console.log('Generate file ./tmp/output.js')
-	Fs.writeFileSync('./tmp/output.js', bundler.generateOutput())
-}, 100)
+	const outputCode = bundler.generateOutput()
+	// const results = UglifyJS.minify(outputCode)
+	Fs.writeFileSync('./tmp/output.js', outputCode)
+	/*
+	Fs.writeFileSync('./tmp/output.min.js', results.code)
+	console.log(results.error)
+	*/
+}, 50)
 
 const config = {
 	input:            process.cwd() + '/example/main.js',

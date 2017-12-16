@@ -1,7 +1,10 @@
 import { bla } from './lib.js'
-import {} from './lib2'
-import {} from './lib3'
+import {} from './lib2.js'
+import {} from './lib3.js'
 
 function main() {
+	console.log('main!')
 	bla()
 }
+
+main()
