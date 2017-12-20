@@ -1,6 +1,3 @@
-import './lib4.js'
-
-const bla = 'hello'
 
 export
 function hello() {
@@ -10,4 +7,8 @@ function hello() {
 export
 function hey() {
 	console.log('hey')
+}
+
+export default {
+	yoyo: 'yo',
 }

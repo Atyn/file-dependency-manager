@@ -1,11 +1,13 @@
 import Path from 'path'
 
-export default
-class FileResolver {
+const defaultResolve = [
+	Path.resolve('./node_modules'),
+]
 
-	constructor(globalFolders = [
-		'/node_modules/',
-	]) {
+export default
+class ResolveList {
+
+	constructor(globalFolders = defaultResolve) {
 		this.globalFolders = globalFolders
 	}
 
@@ -42,10 +44,10 @@ class FileResolver {
 		return null
 	}
 
-	static getListOfAlternatives(from, to) {
-		const fileType = this.getFileType(to)
-		const fileExtension = this.getFileExtension(to) || this.getFileExtension(from)
-		const withoutFileExtension = this.removeFileExtension(to)
+	getListOfAlternatives(from, to) {
+		const fileType = ResolveList.getFileType(to)
+		const fileExtension = ResolveList.getFileExtension(to) || ResolveList.getFileExtension(from)
+		const withoutFileExtension = ResolveList.removeFileExtension(to)
 		const results = /^\.\/(.+)/.exec(to)
 		// Relative files
 		if (results) {
@@ -53,12 +55,13 @@ class FileResolver {
 			return [
 				directory + '/' + withoutFileExtension + '.' + fileExtension,
 				directory + '/' + withoutFileExtension + '/index' + '.' + fileExtension,
-			]
+			].map(Path.normalize)
 		} else {
+			const nodeModulesDirectory = Path.resolve('node_modules')
 			return [
-				'/node_modules/' + withoutFileExtension + '.' + fileExtension,
-				'/node_modules/' + withoutFileExtension + '/index' + '.' + fileExtension,
-			]
+				nodeModulesDirectory + '/' + withoutFileExtension + '.' + fileExtension,
+				nodeModulesDirectory + '/' + withoutFileExtension + '/index' + '.' + fileExtension,
+			].map(Path.normalize)
 		}
 
 	}

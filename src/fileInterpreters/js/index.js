@@ -2,7 +2,6 @@ import path from 'path'
 import { parse } from 'babylon'
 import { transform } from 'babel-core'
 import Recast from 'recast'
-import { transform } from 'babel-core';
 
 const parserOptions = {
 	sourceType:                  'module',

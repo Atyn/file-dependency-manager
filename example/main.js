@@ -1,10 +1,12 @@
 import { bla } from './lib.js'
-import {} from './lib2.js'
-import {} from './lib3.js'
+import { start } from './Component'
+// import styles from './styles.css'
+// window.original = 'ijofeoie'
 
 function main() {
 	console.log('main!')
 	bla()
 }
 
+start()
 main()
