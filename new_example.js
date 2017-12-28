@@ -2,6 +2,7 @@ import FileResolver from './src/FileResolver'
 import ResolveList from './src/ResolveList'
 import Path from 'path'
 import ReadJsFile from './src/ReadJsFile'
+import ReadCSSFile from './src/ReadCSSFile'
 import _mkdirp from 'mkdirp'
 import Fs from 'fs'
 import { promisify } from 'util'
@@ -21,10 +22,12 @@ doIt(rootFile, './main')
 
 async function doIt(from, to) {
 	const filename = fileResolver.resolveFile(from, to)
+
 	try {
 		const results = await readFile(filename)
-		// Dont wait for the file to be written
-		writeFileToOutputFolder(filename, results)
+		const event = Object.assign({	filename }, results)
+		onNodeAdded(event)
+		onNodeContent(event)
 		return filename
 	} catch (error) {
 		console.error(from, '->', to)
@@ -39,29 +42,63 @@ async function doIt(from, to) {
 async function readFile(filename) {
 	const buffer = await ReadFile(filename)
 	const code = buffer.toString()
-	return await ReadJsFile(
-		filename,
-		code,
-		(relativeDependency) =>	onDependencyRequest(filename, relativeDependency)
-	)
-}
-
-function onDependencyRequest(from, to) {
-	const dependencyFilename = fileResolver.resolveFile(from, to)
-	const extension = Path.extname(dependencyFilename)
-	doIt(from, to)
+	const extension = Path.extname(filename)
 	switch (extension) {
 		case '.js':
 		case '.jsx':
-			return Path.relative(Path.dirname(from), dependencyFilename)
+			return await ReadJsFile(
+				filename,
+				code,
+				(relativeDependency) =>	onDependencyRequest(filename, relativeDependency)
+			)
+		case '.css':
+			return await ReadCSSFile(
+				filename,
+				code,
+				(relativeDependency) =>	onDependencyRequest(filename, relativeDependency)
+			)
 	}
-	return null
+	return { code }
 }
 
-async function writeFileToOutputFolder(filename, { code, sourceMap }) {
+function onDependencyRequest(from, to) {
+	doIt(from, to)
+	const dependencyFilename = fileResolver.resolveFile(from, to)
+	const fromExtension = Path.extname(from)
+	const toExtension = Path.extname(dependencyFilename)
+	if (fromExtension === toExtension) {
+		return Path.relative(Path.dirname(from), dependencyFilename)
+	}
+	return onIntercall(from, to)
+}
+
+async function writeFileToOutputFolder({ filename, code, sourceMap }) {
 	const relativeFilename = Path.relative('./', filename)
 	const outputFilename = Path.normalize(outputDirectory + '/' + relativeFilename)
 	await Mkdirp(Path.dirname(outputFilename))
-	await writeFile(outputFilename + '.map', JSON.stringify(sourceMap, null, 2))
+	if (sourceMap) {
+		await writeFile(outputFilename + '.map', JSON.stringify(sourceMap, null, 2))
+	}
 	await writeFile(outputFilename, code)
+}
+
+// Between file types
+function onIntercall(from, to) {
+	console.log('fromExtension !== toExtension')
+}
+
+function onNodeContent(event) {
+	// console.log('onNodeContentChanged', event.filename)
+	writeFileToOutputFolder(event)
+}
+
+function onNodeAdded(event) {
+	const extension = Path.extname(event.filename)
+	switch (extension) {
+		case '.css': {
+			const filename = Path.join(outputDirectory, 'tmp/output/example/main.css')
+
+		}
+	}
+	// console.log('onNodeAdded', event.filename)
 }

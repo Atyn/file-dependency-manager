@@ -86,6 +86,7 @@ module.exports = {
       'no-irregular-whitespace': warn,
       'spaced-comment': warn,
       'func-call-spacing': [error, never],
+      'no-mixed-spaces-and-tabs': warn,
 
        // es6 stuff
       'arrow-spacing': warn,

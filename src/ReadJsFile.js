@@ -4,6 +4,7 @@ import { parse } from 'babylon'
 import { transformFromAst } from '@babel/core'
 import traverse from '@babel/traverse'
 import generate from '@babel/generator'
+import NoIIFE from './babelPlugins/NoIIFE'
 
 const parserOptions = {
 	sourceType:                  'module',
@@ -17,27 +18,32 @@ const parserOptions = {
 }
 
 const defaultBabelOptions = {
-	plugins: [
-		'transform-commonjs-es2015-modules',
-		'transform-node-env-inline',
-		'minify-dead-code-elimination',
+	sourceType:  'module',
+	code:        false,
+	retainLines: false,
+	plugins:     [
+		// 'transform-commonjs-es2015-modules',
+		// 'transform-node-env-inline',
+		// 'minify-dead-code-elimination',
 	],
 	presets: [
+		/*
 		'@babel/react',
 		[ '@babel/preset-env', {
-			modules: false,
-			/*
+			modules:   false,
 			'targets': {
-				browsers: '> 2%',
+				browsers: '> 1%',
 			},
-			*/
 		}],
+		*/
 	],
 }
 
 const generatorOptions = {
-	sourceMaps: true,
-	// retainLines: true,
+	sourceMaps:           true,
+	retainFunctionParens: true,
+	sourceType:           'module',
+	// retainLines:          true,
 }
 
 export default
@@ -52,8 +58,12 @@ async function(
 	const ast = parse(code, parserOptions)
 
 	// Do optional babel transformation
-	const transformResults = transformFromAst(ast, code, babelConfig)
+	const temp = transformFromAst(ast, code, babelConfig)
+	const transformResults = transformFromAst(temp.ast, temp.code, {
+		plugins: [ NoIIFE ],
+	})
 
+	/*
 	// Remove all IIFE
 	traverse(transformResults.ast, {
 		Program(path) {
@@ -72,7 +82,6 @@ async function(
 									if (c.parent !== b.node) {
 										return
 									}
-									console.log('FunctionExpression', filename)
 									a.replaceWithMultiple(c.node.body.body)
 								},
 							})
@@ -81,25 +90,8 @@ async function(
 				},
 			})
 		},
-		/*
-		enter(path) {
-			if (!path.isExpressionStatement()) {
-				return
-			}
-			if (
-				path.isCallExpression() &&
-				path.node.callee
-				// path.node.callee.isFunctionExpression()
-			) {
-				if (path.node.callee.type !== 'FunctionExpression') {
-					return
-				}
-				path.replaceWithMultiple(path.node.callee.body.body)
-			}
-		},
-		*/
 	})
-
+	*/
 	// Resolve dependencies
 	traverse(transformResults.ast, {
 		enter(path) {
@@ -112,7 +104,11 @@ async function(
 					return
 				}
 				const resolvedFilename = resolveFile(path.node.source.value)
-				path.node.source.value = './' + resolvedFilename
+				if (resolvedFilename) {
+					path.node.source.value = './' + resolvedFilename
+				} else {
+					path.remove()
+				}
 			}
 		},
 	})
