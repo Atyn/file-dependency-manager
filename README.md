@@ -1,39 +1,20 @@
-# file-dependency-manager
-Utility to manage relations between files
+# FileNode
 
-## Comes with default file interpreter
-- Javacript/JSX
-- CSS
-- HTML
-- text-files
-- Less
-- JSON
-- CSON
+## Attributes
+- code
 
-## Concept
+## Functionality
+- Listen to changes of code
+- Listen to removed node
 
-### Resolve
+# TreeNode
 
-### Input
-Point to a file generating a file tree
+## Attributes
+- Dependencies
+- AST
+- Generated code (from loader)
 
-### Rules
-Declare how to interpret files (that give dependencies)
-
-### Output generator
-Listen to file tree changes and generate output
-
-## Notes
-every node has
-1. AST
-2. dependencies
-
-When dependecies change => change order of execution order
-When AST changes => compile
-
-## JSRule
-### Loader with babel
-* cjs -> es2015
-* React transform
-### Output browser-compatible modules
-### Use rollup asynchronous to generate bundle
+## Functionality
+- Listen to changes of generated code
+- Listen to changes of dependencies
+- Listen to removed nodes
